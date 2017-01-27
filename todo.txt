@@ -1,0 +1,11 @@
+! read raw_sentences.txt for vocab list
+! transform raw_sentences into a one-hot encoding with input and labels
+! split into train, test, and validation and load into a tensor
+! build a linear model
+! build network
+! train and evaluate
+refactor to separate
+    build model
+    train - option to run validation
+    evaluate
+

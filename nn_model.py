@@ -1,7 +1,7 @@
 import tensorflow as tf
 from data_prep import get_batch
 
-def build_model(training_data, test_data, embedding_size=10, hidden_size=100):
+def build_model(training_data, test_data, embedding_size=50, hidden_size=200):
   vocab_size = len(training_data.labels[0])
   x = tf.placeholder(tf.float32, shape=[None, vocab_size * 3])
   y_ = tf.placeholder(tf.float32, shape=[None, vocab_size])
@@ -26,7 +26,7 @@ def build_model(training_data, test_data, embedding_size=10, hidden_size=100):
 
   sess = tf.InteractiveSession()
   sess.run(tf.global_variables_initializer())
-  for i in range(20000):
+  for i in range(200000):
     batch_x, batch_y = get_batch(training_data, i, 100)
     sess.run(train_step, feed_dict={x: batch_x, y_: batch_y})
 
