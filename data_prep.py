@@ -2,6 +2,7 @@ from itertools import islice
 from collections import namedtuple
 
 LabeledData = namedtuple('LabeledData', ['inputs', 'labels'])
+Model = namedtuple('Model', ['x', 'y_', 'y', 'loss', 'accuracy'])
 
 def window(seq, n):
   it = iter(seq)

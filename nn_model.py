@@ -1,7 +1,11 @@
 import tensorflow as tf
 from data_prep import get_batch
+from data_prep import Model
 
-def build(x, y_, vocab_size, embedding_size=50, hidden_size=200):
+def build(vocab_size, embedding_size=50, hidden_size=200):
+  x = tf.placeholder(tf.float32, shape=[None, vocab_size * 3])
+  y_ = tf.placeholder(tf.float32, shape=[None, vocab_size])
+  
   word_to_embedding_weights = tf.Variable(tf.truncated_normal([vocab_size, embedding_size]))
   
   embedding_to_hidden_weights = tf.Variable(tf.truncated_normal([embedding_size * 3, hidden_size]))
@@ -18,31 +22,28 @@ def build(x, y_, vocab_size, embedding_size=50, hidden_size=200):
 
   cross_entropy = tf.reduce_mean(
     tf.nn.softmax_cross_entropy_with_logits(labels=y_, logits=y))
-  return y, cross_entropy
-
-def evaluate(session, x, y, y_, test_data):
   correct_prediction = tf.equal(tf.argmax(y, 1), tf.argmax(y_, 1))
   accuracy = tf.reduce_mean(tf.cast(correct_prediction, tf.float32))
-  return session.run(accuracy, feed_dict={ x: test_data.inputs, y_: test_data.labels })
+  return Model(x, y_, y, cross_entropy, accuracy)
+
+def evaluate(session, model, test_data):
+  return session.run(model.accuracy, feed_dict={ model.x: test_data.inputs, model.y_: test_data.labels })
 
 def train(session, 
-  x,
-  y_,
-  y,
-  loss,
+  model,
   training_data,
   validation_data,
   test_data,
   steps=2000,
   batch_size=100,
   validation_freq=None):
-  train_step = tf.train.AdamOptimizer(1e-4).minimize(loss)
+  train_step = tf.train.AdamOptimizer(1e-4).minimize(model.loss)
   session.run(tf.global_variables_initializer())
   for i in range(steps):
     batch_x, batch_y = get_batch(training_data, i, batch_size)
-    session.run(train_step, feed_dict={x: batch_x, y_: batch_y})
+    session.run(train_step, feed_dict={model.x: batch_x, model.y_: batch_y})
     if validation_freq != None and i % validation_freq == 0:
-      print("step %i: validation accuracy %f" % (i, evaluate(session, x, y, y_, validation_data)))
+      print("step %i: validation accuracy %f" % (i, evaluate(session, model, validation_data)))
 
 def build_model(training_data, test_data, embedding_size=50, hidden_size=200):
   vocab_size = len(training_data.labels[0])
