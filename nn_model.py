@@ -38,11 +38,12 @@ def train(session,
   steps=2000,
   batch_size=100,
   validation_freq=None):
-  train_step = tf.train.AdamOptimizer(1e-4).minimize(model.loss)
+  train_step = tf.train.AdamOptimizer(epsilon=1e-4).minimize(model.loss)
   session.run(tf.global_variables_initializer())
   for i in range(steps):
     batch_x, batch_y = get_batch(training_data, i, batch_size)
     session.run(train_step, feed_dict={model.x: batch_x, model.y_: batch_y})
     if validation_freq != None and i % validation_freq == 0:
-      print("step %i: validation accuracy: {}, train accuracy: {}" % (i, evaluate(session, model, validation_data), evaluate(session, model, LabeledData(batch_x, batch_y))))
+      print('step %d: validation accuracy: %f train accuracy: %f' % (i, evaluate(session, model, validation_data), evaluate(session, model, LabeledData(batch_x, batch_y))))
 
+  print('final: validation accuracy: %f test accuracy: %f' % (evaluate(session, model, validation_data), evaluate(session, model, test_data)))
